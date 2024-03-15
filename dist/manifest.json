@@ -1,0 +1,16 @@
+{
+  "manifest_version": 1,
+  "name": "KINDYEAR Music Info",
+  "version": "0.0.1",
+  "author": "KINDYEAR",
+  "description": "",
+  "betterncm_version": ">=0.2.5",
+  "preview": "preview.png",
+  "injects": {
+    "Main": [
+      {
+        "file": "./main.js"
+      }
+    ]
+  }
+}
