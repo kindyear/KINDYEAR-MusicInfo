@@ -15,8 +15,6 @@
 歌曲播放时会保存歌曲名称，歌手名称和封面图片至``betterncm插件目录/plugins_runtime/KINDYEAR-MusicInfo/output``目录中
 分别为``Title.txt``,``Artist.txt``和``Cover.png``
 
-由于本插件使用了exec功能调用Windows本地的Wget程序来下载封面，首次运行时可能会弹出是否允许Wget运行的弹窗，请放心使用
-
 在OBS等软件中添加来源即可，需要特别说明的时，封面图片分辨率并不是恒定不变，为了防止画面因为封面的分辨率变化造成干扰，建议在OBS中对其添加缩放滤镜
 
 ![image-20240316135138021](https://raw.githubusercontent.com/kindyear/KINDYEAR-MusicInfo/master/docs/image-20240316135138021.png)
