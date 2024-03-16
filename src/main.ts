@@ -80,11 +80,14 @@ async function saveMusicInfo(title: string | null, artist: string | null, coverU
             // @ts-ignore
             const artistSaveResult = betterncm_native.fs.writeFileText(`${dataPath}\\plugins_dev\\KINDYEAR-MusicInfo\\output\\Artist.txt`, `${artist}`)
             const outputPath = `${dataPath}\\plugins_dev\\KINDYEAR-MusicInfo\\output\\Cover.png`;
-            const coverSaveResult = await betterncm.app.exec(`wget -O "${outputPath}" "${imageUrl}"`);
+            const coverSaveResult = await betterncm.app.exec(`powershell.exe Invoke-WebRequest -Uri "${imageUrl}" -OutFile "${outputPath}"`);
 
-            //  打印保存情况
-            console.log(`[KMI] [DEV] Music Info: ${title} - ${artist} - ${imageUrl},info is different, save.`);
-            console.log(`[KMI] [DEV] Save Result: Title:${titleSaveResult} - Artist:${artistSaveResult} - Cover:${coverSaveResult}`);
+            if (coverSaveResult === true){
+                //  打印保存情况
+                console.log(`[KMI] Save Result: Title:${titleSaveResult} - Artist:${artistSaveResult} - Cover:${coverSaveResult}`);
+            } else {
+                console.error(`[KMI] Save Result: Title:${titleSaveResult} - Artist:${artistSaveResult} - Cover:${coverSaveResult}`);
+            }
         }
         else{
             // @ts-ignore
