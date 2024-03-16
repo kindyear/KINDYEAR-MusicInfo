@@ -1,3 +1,10 @@
+/*
+    @Author: KINDYEAR
+    @Description: KINDYEAR Music Info
+    @Date: 2024/3/16
+    @Version: 1.0.0
+*/
+
 import {Config} from "./ui/config";
 
 plugin.onConfig(() => {
@@ -6,35 +13,99 @@ plugin.onConfig(() => {
     return element;
 });
 
-console.log("[KMI] MutationObserver");
+//  定义元素变量
+let musicInfoTitle:string = null;
+let musicInfoArtist:string = null;
+let musicInfoCoverUrl:string = null;
 
-let musicInfoTitle:String = null;
-let musicInfoArtist:String = null;
-let musicInfoAlbum:String = null;
-let musicInfoCoverUrl :String = null;
+let oldMusicInfoTitle:string = null;
+let oldMusicInfoArtist:string = null;
+let oldMusicInfoCoverUrl:string = null;
 
-plugin.onLoad(async() => {
-    console.log('[KMI] Start MutationObserver');
-    new MutationObserver(() => {
+const dev = betterncm_native.fs.exists('plugins_dev/KINDYEAR-MusicInfo/');
 
-        const titleElement:Element = document.querySelector("a.title");
-        const artistElement:Element = document.querySelector("a.artist");
-        //  const albumElement:Element = document.querySelector("a.f-thide.album");
-        const coverElement:Element = document.querySelector("img.front.normal.j-cover");
+plugin.onLoad(async () => {
+    console.log("[KMI] KMI Loaded,Dev mode:",dev);
+    legacyNativeCmder.appendRegisterCall('Load','audioplayer',()=>{
 
+
+        //  开始observer元素监听
+        const observer = new MutationObserver(async () => {
+            const titleElement = document.querySelector("a.title");
+            const artistElement = document.querySelector("a.artist");
+            const coverElement = document.querySelector("img.front.normal.j-cover");
+
+            if (titleElement) {
+                musicInfoTitle = titleElement.getAttribute("title");
+            }
+            if (artistElement) {
+                musicInfoArtist = artistElement.textContent;
+            }
+            if (coverElement) {
+                musicInfoCoverUrl = coverElement.getAttribute("src");
+            }
+
+            await saveMusicInfo(musicInfoTitle, musicInfoArtist, musicInfoCoverUrl);
+        });
+
+        const titleElement = document.querySelector("a.title.f-oh.j-title");
         if (titleElement) {
-            musicInfoTitle = titleElement.getAttribute("title");
+            observer.observe(document.body, {childList: true, subtree: true});
+        } else {
+            console.error("Title element not found!");
         }
-        if (artistElement) {
-            musicInfoArtist = artistElement.textContent;
+    })
+
+    //  等待页面加载完毕
+    window.addEventListener("DOMContentLoaded", () => {
+
+    });
+});
+
+function checkMusicInfo(title: string | null, artist: string | null, coverUrl: string | null) {
+    // 检查音乐信息是否发生变化
+    return title !== oldMusicInfoTitle || artist !== oldMusicInfoArtist || coverUrl !== oldMusicInfoCoverUrl;
+}
+
+async function saveMusicInfo(title: string | null, artist: string | null, coverUrl: string | null) {
+    const imageUrl = coverUrl?.match(/https:\/\/[^/]+\/[^?]+/)?.[0];
+
+    if (checkMusicInfo(title, artist, imageUrl)) {
+        //  获取BetterNCM插件目录
+        let dataPath = await betterncm.app.getDataPath();
+
+        if(dev === true){
+            // @ts-ignore
+            const titleSaveResult = betterncm_native.fs.writeFileText(`${dataPath}\\plugins_dev\\KINDYEAR-MusicInfo\\output\\Title.txt`, `${title}`)
+            // @ts-ignore
+            const artistSaveResult = betterncm_native.fs.writeFileText(`${dataPath}\\plugins_dev\\KINDYEAR-MusicInfo\\output\\Artist.txt`, `${artist}`)
+            const outputPath = `${dataPath}\\plugins_dev\\KINDYEAR-MusicInfo\\output\\Cover.png`;
+            const coverSaveResult = await betterncm.app.exec(`wget -O "${outputPath}" "${imageUrl}"`);
+
+            //  打印保存情况
+            console.log(`[KMI] [DEV] Music Info: ${title} - ${artist} - ${imageUrl},info is different, save.`);
+            console.log(`[KMI] [DEV] Save Result: Title:${titleSaveResult} - Artist:${artistSaveResult} - Cover:${coverSaveResult}`);
         }
-        /*if (albumElement){
-            musicInfoAlbum = albumElement.textContent;
-        }*/
-        if (coverElement){
-            musicInfoCoverUrl = coverElement.getAttribute("src");
+        else{
+            // @ts-ignore
+            const titleSaveResult = betterncm_native.fs.writeFileText(`${dataPath}\\plugins_runtime\\KINDYEAR-MusicInfo\\output\\Title.txt`, `${title}`)
+            // @ts-ignore
+            const artistSaveResult = betterncm_native.fs.writeFileText(`${dataPath}\\plugins_runtime\\KINDYEAR-MusicInfo\\output\\Artist.txt`, `${artist}`)
+            const outputPath = `${dataPath}\\plugins_runtime\\KINDYEAR-MusicInfo\\output\\Cover.png`;
+            const coverSaveResult = await betterncm.app.exec(`wget -O "${outputPath}" "${imageUrl}"`);
+
+            //  打印保存情况
+            console.log(`[KMI] Music Info: ${title} - ${artist} - ${imageUrl},info is different, save.`);
+            console.log(`[KMI] Save Result: Title:${titleSaveResult} - Artist:${artistSaveResult} - Cover:${coverSaveResult}`);
         }
 
-        console.log(`[KMI] Music Info: ${musicInfoTitle} - ${musicInfoArtist} - ${musicInfoCoverUrl}`);
-    }).observe(await betterncm.utils.waitForElement('.a.title'), {childList: true, subtree: true});
+        // 更新旧的音乐信息
+        oldMusicInfoTitle = title;
+        oldMusicInfoArtist = artist;
+        oldMusicInfoCoverUrl = imageUrl;
+    }
+}
+
+plugin.onAllPluginsLoaded(() => {
+   // TODO 歌词加载插件
 });

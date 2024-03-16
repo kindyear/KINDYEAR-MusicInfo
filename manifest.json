@@ -1,11 +1,15 @@
 {
   "manifest_version": 1,
-  "name": "KINDYEAR Music Info",
-  "version": "0.0.1",
+  "name": "KINDYEAR-MusicInfo",
+  "slug": "kindyear-musicinfo",
+  "version": "1.0.0",
   "author": "KINDYEAR",
-  "description": "",
+  "description": "保存歌曲信息至本地（名称，歌手和封面），允许OBS之类直播软件调用",
+  "author_link": "https://www.kindyear.cn",
+  "ncm3-compatible": false,
   "betterncm_version": ">=0.2.5",
-  "preview": "preview.png",
+  "preview": "cover.png",
+  "type": "extension",
   "injects": {
     "Main": [
       {
