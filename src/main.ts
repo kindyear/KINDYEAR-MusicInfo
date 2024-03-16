@@ -26,7 +26,7 @@ let dev = betterncm_native.fs.exists("plugins_dev/KINDYEAR-MusicInfo/");
 
 plugin.onLoad(async () => {
     console.log("[KMI] KMI Loaded,Dev mode:", dev);
-    if (dev === false){
+    if (dev === false) {
         console.log = () => {};
     }
     legacyNativeCmder.appendRegisterCall("Load", "audioplayer", () => {
