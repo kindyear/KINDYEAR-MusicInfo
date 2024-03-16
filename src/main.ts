@@ -2,7 +2,7 @@
     @Author: KINDYEAR
     @Description: KINDYEAR Music Info
     @Date: 2024/3/16
-    @Version: 1.0.0
+    @Version: 1.0.1
 */
 
 import {Config} from "./ui/config";
@@ -92,11 +92,16 @@ async function saveMusicInfo(title: string | null, artist: string | null, coverU
             // @ts-ignore
             const artistSaveResult = betterncm_native.fs.writeFileText(`${dataPath}\\plugins_runtime\\KINDYEAR-MusicInfo\\output\\Artist.txt`, `${artist}`)
             const outputPath = `${dataPath}\\plugins_runtime\\KINDYEAR-MusicInfo\\output\\Cover.png`;
-            const coverSaveResult = await betterncm.app.exec(`wget -O "${outputPath}" "${imageUrl}"`);
+            const coverSaveResult = await betterncm.app.exec(`powershell.exe Invoke-WebRequest -Uri "${imageUrl}" -OutFile "${outputPath}"`);
 
-            //  打印保存情况
             console.log(`[KMI] Music Info: ${title} - ${artist} - ${imageUrl},info is different, save.`);
-            console.log(`[KMI] Save Result: Title:${titleSaveResult} - Artist:${artistSaveResult} - Cover:${coverSaveResult}`);
+
+            if (coverSaveResult === true){
+                //  打印保存情况
+                console.log(`[KMI] Save Result: Title:${titleSaveResult} - Artist:${artistSaveResult} - Cover:${coverSaveResult}`);
+            } else {
+                console.error(`[KMI] Save Result: Title:${titleSaveResult} - Artist:${artistSaveResult} - Cover:${coverSaveResult}`);
+            }
         }
 
         // 更新旧的音乐信息
